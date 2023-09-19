@@ -1,5 +1,5 @@
 "use client";
-import { Collection } from "@prisma/client";
+import { Collection, Task } from "@prisma/client";
 import React, { useState, useTransition } from "react";
 import {
   Collapsible,
@@ -26,16 +26,21 @@ import {
 import { deleteCollection } from "@/actions/collection";
 import { toast } from "./ui/use-toast";
 import { useRouter } from "next/navigation";
+import CreateTaskDialog from "./CreateTaskDialog";
 
 interface Props {
-  collection: Collection;
+  collection: Collection & {
+    tasks: Task[];
+  };
 }
-
-const tasks: string[] = [];
 
 function CollectionCard({ collection }: Props) {
   const [isOpen, setIsOpen] = useState(true);
   const router = useRouter();
+
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
+  const tasks = collection.tasks;
 
   const [isLoading, startTransition] = useTransition();
 
@@ -57,7 +62,12 @@ function CollectionCard({ collection }: Props) {
   };
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+    <>
+    <CreateTaskDialog 
+    open={showCreateModal}
+    setOpen={setShowCreateModal}
+    collection={collection}/>
+        <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <CollapsibleTrigger asChild>
         <Button
           variant="ghost"
@@ -79,7 +89,7 @@ function CollectionCard({ collection }: Props) {
             <Progress className="rounded-none" value={45} />
             <div className="p-4 gap-3 flex flex-col">
               {tasks.map((task) => (
-                <div>Mocked task </div>
+                <div key={task.id}>{task.content}</div>
               ))}
             </div>
           </>
@@ -90,7 +100,7 @@ function CollectionCard({ collection }: Props) {
           {isLoading && <div>Deleting...</div>}
           {!isLoading && (
             <div>
-              <Button size={"icon"} variant={"ghost"}>
+              <Button size={"icon"} variant={"ghost"} onClick={() => {setShowCreateModal(true)}}>
                 <PlusIcon />
               </Button>
               <AlertDialog>
@@ -122,6 +132,8 @@ function CollectionCard({ collection }: Props) {
         </footer>
       </CollapsibleContent>
     </Collapsible>
+    </>
+
   );
 }
 
