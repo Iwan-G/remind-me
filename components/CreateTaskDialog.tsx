@@ -57,7 +57,7 @@ function CreateTaskDialog({ open, collection, setOpen }: Props) {
       await createTask(data);
       toast({
         title: "Success",
-        description: "Task created successfully!"
+        description: "Task created successfully!",
       });
       openChangeWrapper(false);
       router.refresh();
